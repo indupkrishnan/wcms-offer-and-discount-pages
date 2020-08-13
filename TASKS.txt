@@ -1,0 +1,9 @@
+1.Creation of b2b accelerator with addons.
+2.Cron job.
+3.Backoffice localization.
+4.Data Modeling.
+5.Dynamic Attribute.
+6.Indexing a new attribute.
+7.Flexible Search Query.
+8.Hot Folders.
+9.WCMS.

@@ -1,0 +1,244 @@
+Step 0 : Create some macros to load your content catalog
+
+$contentCatalog=powertoolsContentCatalog
+$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]), CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
+$myPageTemplate:helloHybrisPageTemplate
+$siteResource=jar:de.hybris.training.initialdata.setup.InitialDataSystemSetup&/traininginitialdata/import/sampledata/contentCatalogs/catalogName
+$picture=media(code, $contentCV) ;
+$lang=en
+_________________________________________________________________________________________
+Step 1 : Create Page Template
+Create a WCMS Page Template providing catalog, unique id, name, a frontendTemplateName representing the view JSP and also provide ‘ContentPage’ as restirctedPageType
+
+INSERT_UPDATE PageTemplate;$contentCV[unique=true];uid[unique=true] ;name ;frontendTemplateName ;restrictedPageTypes(code) ;active[default=true]
+ ; ;$myPageTemplate  ;My Page Template Name   ;layout/helloHybrisPageTemplate ;ContentPage ;
+____________________________________________________________________________________________
+Step 2: Create ContentSlotName
+As we have give a definition of the the template object, it’s time to tell Hybris that what all sections this page template will be having. 
+As we can see that expected design has 6 section/areas naming Header Section, Nav Bar Section, A Section, B Section, C Section and Footer Section. 
+With below impex, we will create the similar structure in Hybris.
+
+INSERT_UPDATE ContentSlotName;name[unique=true];template(uid,$contentCV)[unique=true][default=$myPageTemplate];validComponentTypes(code)
+;HeaderArea;;
+;NavBarArea;;
+;ASectionArea;;
+;BSectionArea;;
+;CSectionArea;;
+;FooterArea;;
+_________________________________________________________________________________________________________________________________________
+Step 3: Create Layout JSP
+As we have created 6 different ContentSlotName for required 6 areas. Now we will give it’s corresponding JSP representation with available Hybris WCMS taglibs. 
+Remember,
+
+JSP location and file name must exactly match with the value defined in attribute frontendTemplateName above in step 1.
+Hybris uses positionName attribute to map the ContentSlotName in template JSP
+	<!--Inside trainingstorefront extension-->
+ <!-- JSP For Page Template (helloHybrisPageTemplate) -->
+ <%@ taglib prefix="template" tagdir="/WEB-INF/tags/responsive/template" %>
+ <%@ taglib prefix="cms" uri="http://hybris.com/tld/cmstags" %>
+ 
+      <template:page pageTitle="${pageTitle}">
+
+          <div class="row">
+              <cms:pageSlot position="HeaderArea" var="feature">
+             <cms:component component="${feature}" element="div"/>
+             </cms:pageSlot>
+          </div>
+
+         <div class="row">
+              <cms:pageSlot position="NavBarArea" var="feature">
+             <cms:component component="${feature}" element="div"/>
+             </cms:pageSlot>
+          </div>
+
+        <div class="row">
+              <cms:pageSlot position="ASectionArea" var="feature">
+             <cms:component component="${feature}" element="div"/>
+             </cms:pageSlot>
+          </div>
+
+        <div class="row">
+              <cms:pageSlot position="BSectionArea" var="feature">
+             <cms:component component="${feature}" element="div"/>
+             </cms:pageSlot>
+          </div>
+
+        <div class="row">
+              <cms:pageSlot position="CSectionArea" var="feature">
+             <cms:component component="${feature}" element="div"/>
+             </cms:pageSlot>
+          </div>
+
+        <div class="row">
+              <cms:pageSlot position="FooterArea" var="feature">
+             <cms:component component="${feature}" element="div"/>
+             </cms:pageSlot>
+          </div>
+ </template:page> 
+************************************************************************************************
+************************************************************************************************
+MY code:
+************************************************************************************************
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    
+     <!-- JSP For Page Template (helloHybrisPageTemplate) -->
+ <%@ taglib prefix="template" tagdir="/WEB-INF/tags/responsive/template" %>
+ <%@ taglib prefix="cms" uri="http://hybris.com/tld/cmstags" %>
+ 
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+.discountsBannerImg{
+    width:auto;
+    height:auto;
+}
+.discountsBannerParagraph{
+    font-weight: bold;
+    margin-right: 5px;
+    color: #0000ff;
+    text-align: center;
+    font-size: 70px;
+    font-family: "Brush Script MT";
+   
+    
+}
+ .discountsBannerParagraph1{
+    font-weight: bold;
+    margin-top:30px;
+    margin-right: 5px;
+    color: #0000ff;
+    text-align: center;
+    font-size: 15px;
+    font-family: "Brush Script MT";
+    
+    font-family:"Formal436 BT", "Arial Black", sans-serif
+   
+}
+.discountBannerParentDiv{
+    text-align: center;
+}
+ 
+.discountBannerChildDiv{
+    display: inline-block;
+    top:20px;
+    margin-left: 40px;
+}
+</style>
+</head>
+<template:page pageTitle="${pageTitle}">
+
+          <div class="row">
+              <cms:pageSlot position="HeaderArea" var="feature" element="div" class="discountsBannerParagraph">
+             <cms:component component="${feature}"/>
+             </cms:pageSlot>
+          </div>
+
+         <div class="row">
+              <cms:pageSlot position="NavBarArea" var="feature">
+             <cms:component component="${feature}" element="div"/>
+             </cms:pageSlot>
+          </div>
+
+        <div class="discountBannerParentDiv">
+              <cms:pageSlot position="ASectionArea" var="feature" element="div" class="span-24 section5 discountsBannerImg">
+    		 <div class="discountBannerChildDiv">
+             <cms:component component="${feature}" />
+             </div>
+             </cms:pageSlot>
+          </div>
+
+        <div class="row">
+              <cms:pageSlot position="BSectionArea" var="feature">
+             <cms:component component="${feature}" element="div"/>
+             </cms:pageSlot>
+          </div>
+
+        <div class="row">
+              <cms:pageSlot position="CSectionArea" var="feature">
+             <cms:component component="${feature}" element="div"/>
+             </cms:pageSlot>
+          </div>
+
+        <div class="row">
+              <cms:pageSlot position="FooterArea" var="feature" element="div" class="discountsBannerParagraph1">
+             <cms:component component="${feature}"/>
+             </cms:pageSlot>
+          </div>
+ </template:page> 
+</html>
+___________________________________________________________________________________________
+Step 4: Create ContentSlot and ContentSlotForPageTemplateMapping
+###Create a content slot to page template mapping. here you will map created content slot (created in Step 3) to the provide available positions (created in Step 2)
+
+INSERT_UPDATE ContentSlot;$contentCV[unique=true];uid[unique=true];name;active
+;;HeaderAreaSlot;Header Area Content Slot;true
+;;NavBarAreaSlot;NavBar Area Content Slot;true
+;;ASectionAreaSlot;A Section Area Content Slot;true
+;;BSectionAreaSlot;B Section Area Content Slot;true
+;;CSectionAreaSlot;C Section Area Content Slot;true
+;;FooterAreaSlot;Footer Area Content Slot;true
+
+INSERT_UPDATE ContentSlotForTemplate;$contentCV[unique=true];uid[unique=true];position[unique=true];pageTemplate(uid,$contentCV)[unique=true][default=$myPageTemplate];contentSlot(uid,$contentCV)[unique=true];allowOverwrite[default=true]
+ ;;HeaderArea-$myPageTemplate;HeaderArea;;HeaderAreaSlot;true
+ ;;NavBarArea-$myPageTemplate;NavBarArea;;NavBarAreaSlot;true
+ ;;ASectionArea-$myPageTemplate;ASectionArea;;ASectionAreaSlot;true
+ ;;BSectionArea-$myPageTemplate;BSectionArea;;BSectionAreaSlot;true
+ ;;CSectionArea-$myPageTemplate;CSectionArea;;CSectionAreaSlot;true
+ ;;FooterArea-$myPageTemplate;FooterArea;;FooterAreaSlot;true
+_______________________________________________________________________________________________________
+Step 5: Create ContentPage
+Create ContentPage providing unique id, title, page Template and label (used to access the page <SITE-URL>/<label>)
+
+INSERT_UPDATE ContentPage;$contentCV[unique=true];uid[unique=true];label;title[lang=en];name;masterTemplate(uid, $contentCV);defaultPage[default='true'];approvalStatus(code)[default='approved'] 
+
+;;helloCustomPage;helloHybris;Hello Custom Page;powertools Hello custom page;$myPageTemplate;;; 
+Once you perform above steps, you should be able to access your newly created page using [HybrisURL]/helloHybris
+
+Depending upon the need, once can drop as many components as they want to display in these content slots. Hybris also allows us to create custom WCMS components as well but we will cover that up in another blog. I will link it here once it is ready.
+
+Hope it will help. Have a good day!!!
+
+________________________________________________done
+#creating components
+INSERT_UPDATE CMSParagraphComponent;$contentCV[unique=true];uid[unique=true];name;&componentRef;;;;content;
+;;discountHeadingComponent;Discounts Heading information;discountHeadingComponent;;;;Wonderful Discounts for you!!!;
+
+INSERT_UPDATE SimpleBannerComponent;$contentCV[unique=true];uid[unique=true];name;&componentRef;;;;urlLink
+;;discount1BannerComponent;Discount1 Banner Component;discount1BannerComponent;;;;/Open-Catalogue/Tools/Power-Drills/c/1360
+
+INSERT_UPDATE CMSParagraphComponent;$contentCV[unique=true];uid[unique=true];name;&componentRef;;;;content;
+;;discountFootingComponent;Discounts Footing information;discountFootingComponent;;;;FAQ|Terms and Conditions|Proudly Powered by Powertools;
+____________________________done(step4..first half)
+#creating contentslots
+INSERT_UPDATE ContentSlot;$contentCV[unique=true];uid[unique=true];name;active;cmsComponents(uid,$contentCV)
+;;HeaderAreaSlot;Discount Paragraph Slot;true;discountHeadingComponent
+;;ASectionAreaSlot;Discount Banner Slot;true;discount1BannerComponent
+;;FooterAreaSlot;Discount Paragraph Slot;true;discountFootingComponent
+________________________________(step 4..sec half)
+#linking contentslot to pagetemplate
+INSERT_UPDATE ContentSlotForTemplate;$contentCV[unique=true];uid[unique=true];position[unique=true];pageTemplate(uid,$contentCV)[unique=true][default='OffersPageTemplate'];contentSlot(uid,$contentCV)[unique=true];allowOverwrite
+;;SiteLogo-OffersPage;SiteLogo;;SiteLogoSlot;true
+;;HomepageLink-OffersPage;HomepageNavLink;;HomepageNavLinkSlot;true
+;;NavigationBar-OffersPage;NavigationBar;;NavigationBarSlot;true
+;;MiniCart-OffersPage;MiniCart;;MiniCartSlot;true
+;;Footer-OffersPage;Footer;;FooterSlot;true
+;;HeaderLinks-OffersPage;HeaderLinks;;HeaderLinksSlot;true
+;;SearchBox-OffersPage;SearchBox;;SearchBoxSlot;true
+;;TopHeaderSlot-OffersPage;TopHeaderSlot;;TopHeaderSlot;true
+;;BottomHeaderSlot-OffersPage;BottomHeaderSlot;;BottomHeaderSlot;true
+;;PlaceholderContentSlot-OffersPage;PlaceholderContentSlot;;PlaceholderContentSlot;true
+;;offersParagraphSlot-offersPage;offersParagraph;;offersParagraphSlot;true
+;;offersBannerSlot-offersPage;offersBanner;;offersBannerSlot;true
+
+___________________________________________________________________
+#creating media and linking to bannercomponent
+INSERT_UPDATE Media;$contentCV[unique=true];code[unique=true];@media[translator=de.hybris.platform.impex.jalo.media.MediaDataTranslator];mime[default='image/jpeg'];folder(qualifier)[default='images'];altText
+;;DiscountsBanner1.jpg;$siteResource/images/banners/discounts/DiscountsBanner1.jpg;;;"Grab the Offer soon"
+
+----------
+
+UPDATE SimpleBannerComponent;$contentCV[unique=true];uid[unique=true];$picture[lang=$lang]
+;;discount1BannerComponent;DiscountsBanner1.jpg
+______________________________________________________________

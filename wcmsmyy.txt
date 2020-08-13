@@ -1,0 +1,275 @@
+
+$contentCatalog=powertoolsContentCatalog
+$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
+$siteResource=jar:de.hybris.training.initialdata.setup.InitialDataSystemSetup&/traininginitialdata/import/sampledata/contentCatalogs/catalogName
+
+*********$siteResource=jar:de.hybris.training.initialdata.constants.TrainingInitialDataConstants&/traininginitialdata/import/sampledata/contentCatalogs/catalogName*********
+$picture=media(code, $contentCV) ;
+$lang=en
+
+$productCatalog=powertoolsProductCatalog 
+$productCatalogName=Powertools Product Catalog 
+$productCV=catalogVersion(catalog(id[default=$productCatalog]),version[default='Staged'])[unique=true,default=$productCatalog:Staged] 
+_________________________________________________________
+step1
+
+#creating page template
+INSERT_UPDATE PageTemplate;$contentCV[unique=true];uid[unique=true];name;frontendTemplateName;restrictedPageTypes(code);active[default=true]
+;;offersPageTemplate;offers Page Template;offers/offersLayoutPage;ContentPage
+__________________________________________________________
+step2
+
+#creating pages
+INSERT_UPDATE ContentPage;$contentCV[unique=true];uid[unique=true];name;masterTemplate(uid,$contentCV);label;defaultPage[default='true'];approvalStatus(code)[default='approved'];homepage[default='false']
+;;offersContentPage;Offers Content Page;offersPageTemplate;offersCMSPage
+
+_________________________________________________________________
+step3
+
+#creating contentslot names
+INSERT_UPDATE ContentSlotName;name[unique=true];template(uid,$contentCV)[unique=true][default='offersPageTemplate'];validComponentTypes(code);compTypeGroup(code)
+;SiteLogo;;;logo
+;HeaderLinks;;;headerlinks
+;SearchBox;;;searchbox
+;MiniCart;;;minicart
+;NavigationBar;;;navigation
+;Footer;;;footer
+;TopHeaderSlot;;;wide
+;offersParagraph;;;wide
+;offersBanner;;;wide
+_________________________________________________________________________
+step4
+
+#creating components
+INSERT_UPDATE CMSParagraphComponent;$contentCV[unique=true];uid[unique=true];name;&componentRef;;;;content;
+;;offerHeadingComponent;Offers Heading information;offerHeadingComponent;;;;Special Offers for you;
+
+INSERT_UPDATE SimpleBannerComponent;$contentCV[unique=true];uid[unique=true];name;&componentRef;;;;urlLink
+;;offer1BannerComponent;Offer1 Banner Component;offer1BannerComponent;;;;/Categories/Streetwear-men/T-Shirts-men/Eclipse-Tee-SS/p/300737415
+;;offer2BannerComponent;Offer2 Banner Component;offer2BannerComponent;;;;Categories/Accessories-women/Watches-women/Biarritz-Women/p/111114_black
+;;offer3BannerComponent;Offer3 Banner Component;offer3BannerComponent;;;;Categories/Accessories/Caps/Ginga-Cap/p/300604624
+_____________________________________________________________________________
+step5
+
+#creating contentslots
+INSERT_UPDATE ContentSlot;$contentCV[unique=true];uid[unique=true];name;active;cmsComponents(uid,$contentCV)
+;;offersParagraphSlot;Offer Paragraph Slot;true;offerHeadingComponent
+;;offersBannerSlot;Offer Banner Slot;true;offer1BannerComponent,offer2BannerComponent,offer3BannerComponent
+___________________________________________________________________________________
+step6
+
+#linking contentslot to pagetemplate
+INSERT_UPDATE ContentSlotForTemplate;$contentCV[unique=true];uid[unique=true];position[unique=true];pageTemplate(uid,$contentCV)[unique=true][default='offersPageTemplate'];contentSlot(uid,$contentCV)[unique=true];allowOverwrite
+;;SiteLogo-OffersPage;SiteLogo;;SiteLogoSlot;true
+;;HomepageLink-OffersPage;HomepageNavLink;;HomepageNavLinkSlot;true
+;;NavigationBar-OffersPage;NavigationBar;;NavigationBarSlot;true
+;;MiniCart-OffersPage;MiniCart;;MiniCartSlot;true
+;;Footer-OffersPage;Footer;;FooterSlot;true
+;;HeaderLinks-OffersPage;HeaderLinks;;HeaderLinksSlot;true
+;;SearchBox-OffersPage;SearchBox;;SearchBoxSlot;true
+;;TopHeaderSlot-OffersPage;TopHeaderSlot;;TopHeaderSlot;true
+;;BottomHeaderSlot-OffersPage;BottomHeaderSlot;;BottomHeaderSlot;true
+;;PlaceholderContentSlot-OffersPage;PlaceholderContentSlot;;PlaceholderContentSlot;true
+;;offersParagraphSlot-offersPage;offersParagraph;;offersParagraphSlot;true
+;;offersBannerSlot-offersPage;offersBanner;;offersBannerSlot;true
+________________________________________________________________________________________________________
+step7
+
+##############################NOT USED....use 9,10,11 instead of these 4 impexes##############################
+#Adding link of offers to navigation node
+INSERT_UPDATE CMSNavigationNode;uid[unique=true];$contentCV[unique=true];name;parent(uid, $contentCV);children(uid,$contentCV)[mode=append];links(uid, $contentCV);&nodeRef
+;OfferNavigationNode;;Offers Navigation Node;ApparelUKNavNode;;OffersLink;OfferNavigationNode
+
+INSERT_UPDATE NavigationBarComponent;$contentCV[unique=true];uid[unique=true];name;wrapAfter;link(uid, $contentCV);styleClass;navigationNode(uid,$contentCV);dropDownLayout(code)[default='AUTO']
+;;OffersNavigationBarComponent;Offers Navigation Bar Component;10;OffersLink;;OfferNavigationNode;;
+
+INSERT_UPDATE NavigationBarCollectionComponent;$contentCV[unique=true];uid[unique=true];name;components(uid, $contentCV);&componentRef
+;;NavBarComponent;Navigation Bar Collection Component;BrandsBarComponent,StreetwearBarComponent,SnowBarComponent,AccessoriesBarComponent,StreetwearYouthBarComponent,SpecialOffersBarComponent,OffersNavigationBarComponent;NavBarComponent
+
+INSERT_UPDATE CMSLinkComponent;$contentCV[unique=true];uid[unique=true];name;url;category(code, $productCV);target(code)[default='sameWindow'];;
+;;OffersLink;Offers Link;/offers;;;;
+#############################################
+
+# 9. Create navigation node and add the cms link component.
+	INSERT_UPDATE CMSNavigationNode;uid[unique=true];$contentCV[unique=true];name;&nodeRef;
+	;OfferNavigationNavNode;;Offers Navigation Node;OfferNavigationNavNode
+	 
+	# 10. Create navigation node
+	INSERT_UPDATE CMSNavigationNode;uid[unique=true];$contentCV[unique=true];name;parent(uid, $contentCV);&nodeRef;children(uid,$contentCV)	;ApparelUKCategoryNavNode;;Categories;ApparelUKNavNode;ApparelUKCategoryNavNode;BrandsNavNode,StreetwearNavigationNode,SnowNavigationNode,AccessoriesNavigationNode,StreetwearYouthNavNode,OfferNavigationNavNode
+	
+        # 11. Entries of the above navigation nodes ##
+	INSERT_UPDATE CMSNavigationEntry;uid[unique=true];$contentCV[unique=true];name;navigationNode(&nodeRef);item(CMSLi
+_________________________________________________________________________________________________________________
+step11
+#creating media and linking to bannercomponent
+INSERT_UPDATE
+Media;$contentCV[unique=true];code[unique=true];@media[translator=de.hybris.platform.impex.jalo.media.MediaDataTranslator];mime[default='image/jpeg'];folder(qualifier)[default='images'];altText
+;;OffersBanner1.jpg;$siteResource/images/banners/offers/OffersBanner1.jpg;;;"Grab the Offer soon"
+;;OffersBanner2.jpg;$siteResource/images/banners/offers/OffersBanner2.jpg;;;"Grab the Offer soon"
+;;OffersBanner3.jpg;$siteResource/images/banners/offers/OffersBanner3.jpg;;;"Grab the Discounted Sale soon"
+
+UPDATE SimpleBannerComponent;$contentCV[unique=true];uid[unique=true];$picture[lang=$lang]
+;;offer1BannerComponent;OffersBanner1.jpg
+;;offer2BannerComponent;OffersBanner2.jpg
+;;offer3BannerComponent;OffersBanner3.jpg
+______________________________________________________________________________________________________________
+
+
+step12
+UPDATE CMSNavigationNode;$contentCV[unique=true];uid[unique=true];title[lang=en]
+;;OfferNavigationNode;"Offers"
+UPDATE CMSLinkComponent;$contentCV[unique=true];uid[unique=true];linkName[lang=en]
+;;OffersLink;"Offers"
+____________________________________________________________________________________________
+EXTRA USES
+----------------------------
+
+	# 9. Create navigation node and add the cms link component.
+	INSERT_UPDATE CMSNavigationNode;uid[unique=true];$contentCV[unique=true];name;&nodeRef;
+	;OfferNavigationNavNode;;Offers Navigation Node;OfferNavigationNavNode
+	 
+	# 10. Create navigation node
+	INSERT_UPDATE CMSNavigationNode;uid[unique=true];$contentCV[unique=true];name;parent(uid, $contentCV);&nodeRef;children(uid,$contentCV)	;ApparelUKCategoryNavNode;;Categories;ApparelUKNavNode;ApparelUKCategoryNavNode;BrandsNavNode,StreetwearNavigationNode,SnowNavigationNode,AccessoriesNavigationNode,StreetwearYouthNavNode,OfferNavigationNavNode
+	
+        # 11. Entries of the above navigation nodes ##
+	INSERT_UPDATE CMSNavigationEntry;uid[unique=true];$contentCV[unique=true];name;navigationNode(&nodeRef);item(CMSLinkComponent.uid,CMSLinkComponent.$contentCV);	;OfferNavNodeEntry;;Offer Navigation Node Entry;OfferNavigationNavNode;OffersLink;
+********************************************
+from cms-content.impex
+/Open-Catalogue/Tools/c/1355
+/Open-Catalogue/Tools/Power-Drills/c/1360
+/Open-Catalogue/Tools/Angle-Grinders/c/1595
+/Open-Catalogue/Tools/Screwdrivers/c/1593
+
+
+
+********************************************************
+step 8
+_______________________________________________________________________________________________
+package de.hybris.training.storefront.controllers.pages;
+ 
+import de.hybris.platform.acceleratorstorefrontcommons.controllers.pages.AbstractPageController;
+import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
+import de.hybris.platform.cms2.model.pages.ContentPageModel;
+ 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+ 
+@Controller
+@Scope("tenant")
+@RequestMapping("/offers")
+public class OffersPageController extends AbstractPageController
+{
+    private static final String OFFERS_CMS_PAGE = "offersCMSPage";
+ 
+    @RequestMapping(method = RequestMethod.GET)
+    public String getOffers(final Model model) throws CMSItemNotFoundException
+    {
+        final ContentPageModel offersCMSPage = getContentPageForLabelOrId(OFFERS_CMS_PAGE);
+        storeCmsPageInModel(model, offersCMSPage);
+        setUpMetaDataForContentPage(model, offersCMSPage);
+        return getViewForPage(model);
+    }
+}
+	************************************************************************
+_____________________________________________________________________________________________________________
+step 9:
+Create a template jsp
+hybris\bin\custom\training\trainingstorefront\web\webroot\WEB-INF\views\responsive\pages\offers\offersLayoutPage.jsp
+
+Copy this code
+<%@ page trimDirectiveWhitespaces="true" %>
+<%@ taglib prefix="template" tagdir="/WEB-INF/tags/responsive/template" %>
+<%@ taglib prefix="cms" uri="http://hybris.com/tld/cmstags" %>
+<%@ taglib prefix="common" tagdir="/WEB-INF/tags/responsive/common" %>
+ 
+<template:page pageTitle="${pageTitle}">
+    <div id="globalMessages">
+        <common:globalMessages/>
+    </div>
+   
+   
+        <cms:pageSlot position="offersParagraph" var="feature" element="div" class="offersBannerParagraph">
+        <cms:component component="${feature}" />
+    </cms:pageSlot>
+    <div class="offerBannerParentDiv">
+    <cms:pageSlot position="offersBanner" var="feature" element="div" class="span-24 section5 offersBannerImg">
+    <div class="offerBannerChildDiv">
+        <cms:component component="${feature}" />
+        </div>
+    </cms:pageSlot>
+    </div>
+</template:page>
+Now we have created the offersLayoutPage.jsp page and added all the content slots to display the offers.
+
+_________________________________used code____________________
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    <%@ page trimDirectiveWhitespaces="true" %>
+<%@ taglib prefix="template" tagdir="/WEB-INF/tags/responsive/template" %>
+<%@ taglib prefix="cms" uri="http://hybris.com/tld/cmstags" %>
+<%@ taglib prefix="common" tagdir="/WEB-INF/tags/responsive/common" %>
+<%@ taglib prefix="offers" tagdir="/WEB-INF/tags/responsive/offers" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+<style type="text/css">
+.offersBannerImg{
+    width:auto;
+    height:auto;
+}
+.offersBannerParagraph{
+    font-weight: bold;
+    margin-right: 5px;
+    color: #0000ff;
+    text-align: center;
+    font-size: 50px;
+    font-family: "Brush Script MT";
+    font-family:"Formal436 BT", "Arial Black", sans-serif
+   
+}
+ 
+.offerBannerParentDiv{
+    text-align: center;
+}
+ 
+.offerBannerChildDiv{
+    display: inline-block;
+    top:20px;
+    margin-left: 40px;
+}
+</style>
+</head>
+<body>
+<template:page pageTitle="${pageTitle}">
+    <div id="globalMessages">
+        <common:globalMessages/>
+    </div>
+   
+   
+        <cms:pageSlot position="offersParagraph" var="feature" element="div" class="offersBannerParagraph">
+        <cms:component component="${feature}" />
+    </cms:pageSlot>
+    <div class="offerBannerParentDiv">
+    <cms:pageSlot position="offersBanner" var="feature" element="div" class="span-24 section5 offersBannerImg">
+    <div class="offerBannerChildDiv">
+        <cms:component component="${feature}" />
+        </div>
+    </cms:pageSlot>
+    </div>
+</template:page>
+
+</body>
+</html>
+___________________________________________________________________________________________
+Step 10
+
+Add 3 offer images in the below folder with required size
+traininginitialdata/resource/traininginitialdata/import/sampledata/contentcatalog/catalogname/offers folder/paste 3 images.
+
+
+\hybris\bin\ext-data\apparelstore\resources\apparelstore\import\sampledata\contentCatalogs\apparel-ukContentCatalog\images\banners\offers							
